@@ -5,7 +5,7 @@
 	</div>
 	<div class="relative mx-auto max-w-7xl px-6 pt-16 pb-12 sm:px-12 lg:pt-24">
 		<header class="mx-auto max-w-2xl text-center">
-			<h1 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">MultiMeme.com</h1>
+			<h1 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">MultiMemes.com</h1>
 			<p class="mt-2 text-sm font-semibold text-gray-400">
 				It's our mission to serve worship leaders globally by creating memes that allow them to maximize their time towards what really matters.
 			</p>
