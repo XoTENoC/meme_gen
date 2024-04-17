@@ -30,7 +30,7 @@
       },
       async deleteImage(id) {
         try {
-          const response = await fetch(`]/api/delete-image`, {
+          const response = await fetch(`/api/delete-image`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
