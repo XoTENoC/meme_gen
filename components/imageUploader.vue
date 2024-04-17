@@ -39,7 +39,7 @@ export default {
 			if (!this.imageData) return;
 
 			try {
-				const response = await fetch('http://localhost:3000/api/upload-image', {
+				const response = await fetch('/api/upload-image', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
