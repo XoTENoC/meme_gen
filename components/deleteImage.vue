@@ -20,7 +20,7 @@
     methods: {
       async fetchImages() {
         try {
-          const response = await fetch('http://localhost:3000/api/get-images');
+          const response = await fetch('/api/get-images');
           if (!response.ok) throw new Error('Failed to fetch images');
           return response.json();
         } catch (error) {
@@ -30,7 +30,7 @@
       },
       async deleteImage(id) {
         try {
-          const response = await fetch(`http://localhost:3000/api/delete-image`, {
+          const response = await fetch(`]/api/delete-image`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
