@@ -18,7 +18,7 @@
 			</div>
 		</div>
 		<div ref="meme" v-if="validImage" class="flex relative max-w-full">
-			<img :src="`data:image/jpeg;base64,${imageStore.selectedImage.highRes}`" class="object-cover w-full">
+			<img :src="imageStore.selectedImage.highRes" class="object-cover w-full">
 			<h1 class="absolute text-center text-8xl font-bold meme-text uppercase text-white top-0 w-full h-1/4 overflow-hidden">{{ topText }}</h1>
 			<h1 class="absolute text-center text-8xl font-bold meme-text uppercase text-white bottom-0 w-full max-h-1/4 overflow-hidden">{{ bottomText }}</h1>
 		</div>

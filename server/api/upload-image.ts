@@ -1,33 +1,46 @@
 import { PrismaClient } from '@prisma/client';
 import sharp from 'sharp';
+import fs from 'fs';
+import { promisify } from 'util';
+import path from 'path';
+
+const writeFile = promisify(fs.writeFile);
 
 export default defineEventHandler(async (event) => {
 	const prisma = new PrismaClient();
 	try {
-		const imageData = await readBody(event); // Assumes image data is sent as a base64 string
+		const imageData = await readBody(event);
 		const name = imageData.name;
 		const buffer = Buffer.from(imageData.file, 'base64');
 
+		// Prepare file paths
+		const baseDir = path.join('public', 'images');
+		const highResPath = path.join(baseDir, `${name}_highres.jpeg`);
+		const thumbnailPath = path.join(baseDir, `${name}_thumbnail.jpeg`);
+
 		// Generate high-resolution and thumbnail images
 		const highRes = await sharp(buffer)
-			.resize(1080)  // Resizes the image, keeping aspect ratio, with the longest edge being 1080px
+			.resize(1080)  // High resolution
 			.toFormat('jpeg')
 			.toBuffer();
 		const thumbnail = await sharp(buffer)
-			.resize(300)   // Resizes the image, keeping aspect ratio, with the longest edge being 300px
+			.resize(300)   // Thumbnail
 			.toFormat('jpeg')
 			.toBuffer();
 
-		// Convert buffers to base64 strings (if storing in DB directly; otherwise, save to file system)
-		const highResBase64 = highRes.toString('base64');
-		const thumbnailBase64 = thumbnail.toString('base64');
+		// Save images to file system
+		await writeFile(highResPath, highRes);
+		await writeFile(thumbnailPath, thumbnail);
 
-		// Store in the database
+		const highResPathWeb = path.join("/images", `${name}_highres.jpeg`);
+		const thumbnailPathWeb = path.join("/images", `${name}_thumbnail.jpeg`);
+
+		// Store image paths in the database instead of the content
 		const image = await prisma.image.create({
 			data: {
 				name,
-				highRes: highResBase64,
-				thumbnail: thumbnailBase64
+				highRes: highResPathWeb,
+				thumbnail: thumbnailPathWeb
 			}
 		});
 
