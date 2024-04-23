@@ -10,8 +10,11 @@ export default defineEventHandler(async (event) => {
 	const prisma = new PrismaClient();
 	try {
 		const imageData = await readBody(event);
-		const name = imageData.name;
+		let name = imageData.name;
 		const buffer = Buffer.from(imageData.file, 'base64');
+
+		// Replace spaces with underscores in the name
+		name = name.replace(/\s+/g, '_');
 
 		// Prepare file paths
 		const baseDir = path.join('public', 'images');
