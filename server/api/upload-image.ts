@@ -5,6 +5,7 @@ import { promisify } from 'util';
 import path from 'path';
 
 const writeFile = promisify(fs.writeFile);
+const exists = promisify(fs.exists);
 
 export default defineEventHandler(async (event) => {
 	const prisma = new PrismaClient();
@@ -18,8 +19,11 @@ export default defineEventHandler(async (event) => {
 
 		// Prepare file paths
 		const baseDir = path.join('public', 'images');
+		const outputDir = path.join('output', baseDir);
 		const highResPath = path.join(baseDir, `${name}_highres.jpeg`);
 		const thumbnailPath = path.join(baseDir, `${name}_thumbnail.jpeg`);
+		const highResOutputPath = path.join(outputDir, `${name}_highres.jpeg`);
+		const thumbnailOutputPath = path.join(outputDir, `${name}_thumbnail.jpeg`);
 
 		// Generate high-resolution and thumbnail images
 		const highRes = await sharp(buffer)
@@ -34,6 +38,11 @@ export default defineEventHandler(async (event) => {
 		// Save images to file system
 		await writeFile(highResPath, highRes);
 		await writeFile(thumbnailPath, thumbnail);
+
+		if (await exists('output')) {
+			await writeFile(highResOutputPath, highRes);
+			await writeFile(thumbnailOutputPath, thumbnail);
+		}
 
 		const highResPathWeb = path.join("/images", `${name}_highres.jpeg`);
 		const thumbnailPathWeb = path.join("/images", `${name}_thumbnail.jpeg`);
