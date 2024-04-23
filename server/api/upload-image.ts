@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
 		// Prepare file paths
 		const baseDir = path.join('public', 'images');
-		const outputDir = path.join('output', baseDir);
+		const outputDir = path.join('.output', baseDir);
 		const highResPath = path.join(baseDir, `${name}_highres.jpeg`);
 		const thumbnailPath = path.join(baseDir, `${name}_thumbnail.jpeg`);
 		const highResOutputPath = path.join(outputDir, `${name}_highres.jpeg`);
