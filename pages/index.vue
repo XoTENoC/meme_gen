@@ -1,5 +1,5 @@
 <template>
-	<div class="mx-auto p-8 w-full lg:max-w-5xl flex flex-col gap-8">
+	<div class="mx-auto p-4 sm:p-8 w-full lg:max-w-5xl flex flex-col gap-8">
 		<imageList />
 		<memeGen />
 	</div>

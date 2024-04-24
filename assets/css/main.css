@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .meme-text {
-    -webkit-text-stroke: 5px black;
+    -webkit-text-stroke: 0.05em black;
     -webkit-text-fill-color: white;
     font-family: impact;
 }
