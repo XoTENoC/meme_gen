@@ -1,11 +1,19 @@
 import { PrismaClient } from '@prisma/client';
 import sharp from 'sharp';
 import fs from 'fs';
-import { promisify } from 'util';
 import path from 'path';
+import AWS from 'aws-sdk';
 
-const writeFile = promisify(fs.writeFile);
-const exists = promisify(fs.exists);
+// Configure the AWS SDK for JavaScript to use your MinIO instance
+const s3 = new AWS.S3({
+	endpoint: 'https://bucket.nuggslab.com', // MinIO endpoint
+	accessKeyId: 'TnBqMJ6Bj6rfd0UZ7oC8', // MinIO Access Key
+	secretAccessKey: 'JEX4ZpfIRoTeJTAGBpbf4OXLdMaReQHKNJA1plhk', // MinIO Secret Key
+	s3ForcePathStyle: true, // Needed with MinIO
+	signatureVersion: 'v4'
+});
+
+const bucketName = 'memegen';
 
 export default defineEventHandler(async (event) => {
 	const prisma = new PrismaClient();
@@ -17,14 +25,6 @@ export default defineEventHandler(async (event) => {
 		// Replace spaces with underscores in the name
 		name = name.replace(/\s+/g, '_');
 
-		// Prepare file paths
-		const baseDir = path.join('public', 'images');
-		const outputDir = path.join('.output', baseDir);
-		const highResPath = path.join(baseDir, `${name}_highres.jpeg`);
-		const thumbnailPath = path.join(baseDir, `${name}_thumbnail.jpeg`);
-		const highResOutputPath = path.join(outputDir, `${name}_highres.jpeg`);
-		const thumbnailOutputPath = path.join(outputDir, `${name}_thumbnail.jpeg`);
-
 		// Generate high-resolution and thumbnail images
 		const highRes = await sharp(buffer)
 			.resize(1080)  // High resolution
@@ -35,24 +35,34 @@ export default defineEventHandler(async (event) => {
 			.toFormat('jpeg')
 			.toBuffer();
 
-		// Save images to file system
-		await writeFile(highResPath, highRes);
-		await writeFile(thumbnailPath, thumbnail);
+		// Prepare key paths for S3
+		const highResKey = `public/${name}_highres.jpeg`;
+		const thumbnailKey = `public/${name}_thumbnail.jpeg`;
 
-		if (await exists('output')) {
-			await writeFile(highResOutputPath, highRes);
-			await writeFile(thumbnailOutputPath, thumbnail);
-		}
+		// Upload images to S3/MinIO
+		await s3.upload({
+			Bucket: bucketName,
+			Key: highResKey,
+			Body: highRes,
+			ACL: 'public-read'
+		}).promise();
+		await s3.upload({
+			Bucket: bucketName,
+			Key: thumbnailKey,
+			Body: thumbnail,
+			ACL: 'public-read'
+		}).promise();
 
-		const highResPathWeb = path.join("/images", `${name}_highres.jpeg`);
-		const thumbnailPathWeb = path.join("/images", `${name}_thumbnail.jpeg`);
+		const baseUrl = 'https://bucket.nuggslab.com/memegen/public';
+		const highResUrl = `${baseUrl}/${name}_highres.jpeg`;
+		const thumbnailUrl = `${baseUrl}/${name}_thumbnail.jpeg`;
 
-		// Store image paths in the database instead of the content
+		// Store image URLs in the database instead of the content
 		const image = await prisma.image.create({
 			data: {
 				name,
-				highRes: highResPathWeb,
-				thumbnail: thumbnailPathWeb
+				highRes: highResUrl,
+				thumbnail: thumbnailUrl
 			}
 		});
 
